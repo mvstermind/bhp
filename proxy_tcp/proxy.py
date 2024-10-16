@@ -20,3 +20,26 @@ def hexdump(src, length=16, show=True):
             print(line)
     else:
         return results
+
+
+def recieve_from(connection):
+    buffer = b""
+    connection.settimeout(5)
+    try:
+        while True:
+            data = connection.recv(4096)
+            if not data:
+                break
+            buffer += data
+    except Exception as e:
+        print("Error: ", e)
+        pass
+    return buffer
+
+
+def request_hanlder(buffer):
+    return
+
+
+def response_handler(buffer):
+    return
