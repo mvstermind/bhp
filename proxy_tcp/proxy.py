@@ -107,3 +107,30 @@ def server_loop(local_host, local_port, remote_host, remote_port, recieve_first)
             args=(client_socket, remote_host, remote_port, recieve_first),
         )
         proxy_thread.start()
+
+
+def main():
+    if len(sys.argv[1:]) != 5:
+        print("Usage: ./proxy.py [local host] [local port]", end="")
+        print("[remote host] [remote port] [recieve_first]")
+        print("example: python proxy.py 127.0.0.1 9000 10.12.132.1 9000 True")
+        sys.exit(0)
+
+    local_host = sys.argv[1]
+    local_port = int(sys.argv[2])
+
+    remote_host = sys.argv[3]
+    remote_port = int(sys.argv[4])
+
+    recieve_first = sys.argv[5]
+
+    if "True" in recieve_first:
+        recieve_first = True
+    else:
+        recieve_first = False
+
+    server_loop(local_host, local_port, remote_host, remote_port, recieve_first)
+
+
+if __name__ == "__main__":
+    main()
