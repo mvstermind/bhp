@@ -48,6 +48,12 @@ class ICMP:
         self.seq = header[4]
 
 
+def udp_sender():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sender:
+        for ip in ipaddress.ip_network(SUBNET).hosts():
+            sender.sendto(bytes(MESSAGE, "utf8"), (str(ip), 65212))
+
+
 class Scanner:
     def __init__(self, host):
         self.host = host
