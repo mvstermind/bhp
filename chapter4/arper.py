@@ -88,7 +88,27 @@ class Arper:
         print("Finished")
 
     def restore(self):
-        pass
+        print("Restoring ARP tables...")
+        send(
+            ARP(
+                op=2,
+                psrc=self.gateway,
+                hwsrc=self.gatewaymac,
+                pdst=self.victim,
+                hwdst="ff:ff:ff:ff:ff:ff",
+            ),
+            count=5,
+        )
+        send(
+            ARP(
+                op=2,
+                psrc=self.victim,
+                hwsrc=self.victimmac,
+                pdst=self.gateway,
+                hwdst="ff:ff:ff:ff:ff:ff",
+            ),
+            count=5,
+        )
 
 
 if __name__ == "__main__":
