@@ -66,7 +66,13 @@ class Recapper:
                 self.responses.append(Response(header=header, payload=payload))
 
     def write(self, content_name):
-        pass
+        for i, response in enumerate(self.responses):
+            content, content_type = extract_content(response, content_name)
+            if content and content_type:
+                fname = os.path.join(OUTDIR, f"ex_{i}.{content_type}")
+                print(f"Writing {fname}")
+                with open(fname, "wb") as f:
+                    f.write(content)
 
 
 if __name__ == "__main__":
