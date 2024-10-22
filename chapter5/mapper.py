@@ -41,6 +41,19 @@ def test_remote():
         sys.stdout.flush()
 
 
+def run():
+    mythreards = list()
+    for i in range(THREADS):
+        print(f"Spawning thread {i}")
+
+        t = threading.Thread(target=test_remote)
+        mythreards.append(t)
+        t.start()
+
+    for thread in mythreards:
+        thread.join()
+
+
 @contextlib.contextmanager
 def chdir(path):
     this_dir = os.getcwd()
@@ -54,5 +67,11 @@ def chdir(path):
 if __name__ == "__main__":
     with chdir("path here"):
         gather_paths()
-
     input("Pres return to continue")
+
+    run()
+    with open("myanswers.txt", "w") as f:
+        while not answers.empty():
+            f.write(f"{answers.get()}\n")
+
+    print("done")
