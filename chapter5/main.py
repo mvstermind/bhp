@@ -1,16 +1,10 @@
-from io import BytesIO
-from lxml import etree
-
+from bs4 import BeautifulSoup as bs
 import requests
 
-url = "https://nostrach.com"
-
+url = "http://bing.com"
 r = requests.get(url)
 
-content = r.content
+tree = bs(r.text, "html.parser")
 
-parser = etree.HTMLParser()
-content = etree.parser(BytesIO(content), parser=parser)
-
-for link in content.findall("//a"):
-    print(f"{link.get('href')} -> {link.text}")
+for link in tree.find_all("a"):
+    print(f"{link.get('href')}")
