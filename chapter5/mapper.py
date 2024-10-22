@@ -12,7 +12,7 @@ TARGET = "http://boodelyboo.com/wordpress"
 THREADS = 10
 
 answers = queue.Queue()
-web_path = queue.Queue()
+web_paths = queue.Queue()
 
 
 def gather_paths():
@@ -24,7 +24,21 @@ def gather_paths():
             if path.startswith("."):
                 path = path[1:]
             print(path)
-            web_path.put(path)
+            web_paths.put(path)
+
+
+def test_remote():
+    while not web_paths.empty():
+        path = web_paths.get()
+        url = f"{TARGET}{path}"
+        time.sleep(2)
+        r = requests.get(url)
+        if r.status_code == 200:
+            answers.put(url)
+            sys.stdout.write("+")
+        else:
+            sys.stdout.write("x")
+        sys.stdout.flush()
 
 
 @contextlib.contextmanager
