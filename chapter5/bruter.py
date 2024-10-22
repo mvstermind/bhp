@@ -1,14 +1,13 @@
 import queue
-from typing import Tuple
 import requests
 import threading
 import sys
 
 AGENT = "Mozilla/5.0 (X11; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"
 EXTENSIONS = [".php", ".bak", ".orig", ".inc"]
-TARGET = "http:testphp.vulnweb.com"
+TARGET = "http://testphp.vulnweb.com"
 THREADS = 50
-WORDLIST = "wordlist path here"
+WORDLIST = ""
 
 
 def get_words(resume=None):
