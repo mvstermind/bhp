@@ -106,5 +106,15 @@ class AslrCheck(interfaces.plugins.PluginInterface):
             except Exception as e:
                 continue
 
-            aslr = check_aslr(pre)
+            aslr = check_aslr(pe)
             yield(0, (proc_id, procname, format_hints(pe.OPTIONAL_HEADER.ImageBase), aslr))
+
+            def run(self):
+                procs = pslist.PsList.list_processes(self.context,self.config["primary"],self.config["nt_symbols"],self.config["nt_symbols"])
+                return renderers.TreeGrid([
+                    ("PID", int),
+                    ("Filename", str),
+                    ("Base", format_hints.Hex),
+                    ("ASLR", bool)],
+                    self._generator(procs))
+
