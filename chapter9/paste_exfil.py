@@ -1,8 +1,8 @@
-from win32com import clien
+from win32com import client
 import os
 import random
 import requests
-import file
+import time
 
 username = "tim"
 password = "seKret"
@@ -30,3 +30,36 @@ def plain_paste(title, contents):
     r = requests.post(paste_url, data=paste_data)
     print(r.status_code)
     print(r.text)
+
+
+def wait_for_browser(browser):
+    while browser.ReadyState != 4 and browser.ReadyState != "complete":
+        time.sleep(0.1)
+
+
+def login(ie):
+    full_doc = ie.Document.all
+    for elem in full_doc:
+        if elem.id == "loginform-username":
+            elem.setAttribute("value", username)
+        elif elem.id == "loginform-password":
+            elem.setAttribute("value", password)
+
+    random_sleep()
+    if ie.Document.forms[0].id == "w0":
+        ie.document.forms[0].submit()
+    wait_for_browser(ie)
+
+
+def subit(ie, title, contents):
+    full_doc = ie.Document.all
+    for elem in full_doc:
+        if elem.id == "postform-name":
+            elem.setAttribute("value", title)
+
+        elif elem.id == "postform-text":
+            elem.setAttribute("value", contents)
+
+    if ie.Document.forms[0].id == "w0":
+        ie.document.forms[0].submit()
+    wait_for_browser(ie)
