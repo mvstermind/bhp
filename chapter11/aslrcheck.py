@@ -59,3 +59,52 @@ class AslrCheck(interfaces.plugins.PluginInterface):
                 optional=True,
             ),
         ]
+
+    @classmethod
+    def create_pid_filter(
+        cls, pid_list: List[int] = None
+    ) -> Callable[[interfaces.objects.ObjectInterface], bool]:
+        filter_func = lambda _: False
+        pid_list = pid_list or []
+        filter_list = [x for x in pid_list if x is not None]
+        if filter_list:
+        filter_func = lambda x: x.UniqueProcessId not in        filter_list
+        return filter_func
+
+    def _generator(self, procs):
+        pe_table_name =intermed.IntermediateSymbolTable.create(self.context,self.config_path,"windows","pe",class_types=extensions.pe.class_types)
+        procnames = list()
+        for proc in procs:
+            procname = proc.ImageFileName.cast("string",max_length=proc.ImageFileName.vol.count,errors='replace')
+            if procname in procnames:
+                continue
+
+            procnames.append(procname)
+            proc_id = "Unknown"
+            try:
+                proc_id = proc.UniqueProcessId
+                proc_layer_name = proc.add_process_layer()
+            except exceptions.InvalidAddressException as e:
+                vollog.error(f"Process {proc_id}: invalid address {e} inlayer {e.layer_name}")
+                continue
+            
+            peb = self.context.object(self.config['nt_symbols'] +constants.BANG + "_PEB",layer_name = proc_layer_name,offset = proc.Peb)
+            try:
+                dos_header = self.context.object(pe_table_name, constants.BANG + "_IMAGE_DOS_HEADER", offset=peb.ImageBaseAddress, layer_name=proc_layer_name)
+            except Exception as e:
+                continue
+
+            pe_data = io.BytesIO()
+            for offset, data in dos_header.reconstruct():
+                pe_data.seek(offset)
+                pe_data.write(data)
+
+            pe_data_raw = pe_data.getvalue()
+            pe_data.close()
+            try:
+                pe = pefile.PE(data=pe_data_raw)
+            except Exception as e:
+                continue
+
+            aslr = check_aslr(pre)
+            yield(0, (proc_id, procname, format_hints(pe.OPTIONAL_HEADER.ImageBase), aslr))
