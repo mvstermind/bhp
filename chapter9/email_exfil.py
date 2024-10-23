@@ -1,6 +1,6 @@
 import smtplib
 import time
-import win32con.client
+import win32com.client
 
 smtp_server = "stmp.example.com"
 smtp_port = 587
@@ -19,3 +19,16 @@ def plain_email(subject, contents):
     server.sendmail(smtp_acct, tgt_accts, message)
     time.sleep(1)
     server.quit
+
+
+def outlook(subject, contents):
+    outlook = win32com.client.Dispatch("Outlook.Application")
+    message = outlook.CreateItem(0)
+    message.DeleteAfterSubimit = True
+    message.Body = contents.decode()
+    message.To = tgt_accts[0]
+    message.Send()
+
+
+if __name__ == "__main__":
+    plain_email("test2 message", "attack at dawn")
