@@ -37,6 +37,10 @@ def wait_for_browser(browser):
         time.sleep(0.1)
 
 
+def random_sleep():
+    time.sleep(random.randint(5, 10))
+
+
 def login(ie):
     full_doc = ie.Document.all
     for elem in full_doc:
@@ -51,7 +55,7 @@ def login(ie):
     wait_for_browser(ie)
 
 
-def subit(ie, title, contents):
+def submit(ie, title, contents):
     full_doc = ie.Document.all
     for elem in full_doc:
         if elem.id == "postform-name":
@@ -63,3 +67,19 @@ def subit(ie, title, contents):
     if ie.Document.forms[0].id == "w0":
         ie.document.forms[0].submit()
     wait_for_browser(ie)
+
+
+def ie_paste(title, contents):
+    ie = client.Dispatch("InternetExplorer.Application")
+    ie.Visible = 1
+    ie.Navigate("https://pastebin.com/login")
+    wait_for_browser(ie)
+    login(ie)
+    ie.Navigate("https://pastebin.com/")
+    wait_for_browser(ie)
+    submit(ie, title, contents.decode())
+    ie.Quit()
+
+
+if __name__ == "__main__":
+    ie_paste("title", "contents")
