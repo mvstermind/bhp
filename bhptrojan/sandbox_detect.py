@@ -42,3 +42,45 @@ class Detector:
                     self.keystrokes += 1
 
         return None
+
+    def detect(self):
+        previous_timestamp = None
+        first_double_click = None
+        double_click_threshold = 0.35
+
+        max_double_clicks = 10
+        max_keystrokes = random.randint(10, 25)
+        max_mouse_clicks = random.randint(5, 25)
+        max_input_threshold = 30000
+
+        last_input = get_last_input()
+        if last_input >= max_input_threshold:
+            sys.exit(0)
+
+        detect_complete = False
+        while not detect_complete:
+            keypress_time = self.get_key_press()
+            if keypress_time is not None and previous_timestamp is not None:
+                elapsed = keypress_time - previous_timestamp
+
+                if elapsed <= double_click_threshold:
+                    self.mouse_clicks -= 2
+                    self.mouse_clicks += 1
+                    if first_double_click is None:
+                        first_double_click = time.time()
+                    else:
+                        if self.double_clicks >= max_double_clicks:
+                            if (keypress_time - first_double_click) <= (
+                                max_double_clicks * double_click_threshold
+                            ):
+                                sys.exit(0)
+
+                        if (
+                            self.keystrokes >= max_keystrokes
+                            and self.double_clicks >= max_double_clicks
+                            and self.mouse_clicks >= max_mouse_clicks
+                        ):
+                            detect_complete = True
+                    previous_timestamp = keypress_time
+                elif keypress_time is not None:
+                    previous_timestamp = keypress_time
